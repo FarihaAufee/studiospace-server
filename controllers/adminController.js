@@ -1,13 +1,4 @@
-/**
- * Admin studio management controller.
- *
- * Every handler requires `requireAuth` + `requireAdmin` (see routes/adminRoutes.js):
- * req.user is the verified Better Auth session user AND their email is in the
- * server-side ADMIN_EMAILS env list. Only verified admins reach this code.
- *
- * Admins may edit/delete ANY studio �?" including legacy/demo documents with
- * no hostId and string _id values (both id forms are matched, see buildIdQuery).
- */
+
 
 import { getStudiosCollection, getUserCollection, getBookingsCollection } from "../config/db.js";
 import { sendSuccess, sendError } from "../utils/apiResponse.js";
