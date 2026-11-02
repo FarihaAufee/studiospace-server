@@ -1,8 +1,8 @@
 
-import { ObjectId } from "mongodb";
 import { getStudiosCollection } from "../config/db.js";
 import { sendSuccess, sendError } from "../utils/apiResponse.js";
 import {
+  buildIdQuery,
   isValidObjectId,
   validateStudioPayload,
   buildStudioFilter,
@@ -12,12 +12,6 @@ import {
   buildOwnershipQuery,
   OWNERSHIP_FIELDS,
 } from "../utils/ownership.js";
-
-// Builds a query that matches a studio _id whether it was stored as a
-// real ObjectId (new inserts) or as a 24-char hex string (legacy documents).
-function buildIdQuery(id) {
-  return { _id: { $in: [new ObjectId(id), id] } };
-}
 
 // 1. GET /api/studios
 export async function getAllStudios(req, res, next) {

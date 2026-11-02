@@ -7,6 +7,7 @@ import categoryRoutes from "./routes/categoryRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
 import hostRoutes from "./routes/hostRoutes.js";
 import profileRoutes from "./routes/profileRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
 import {
   notFoundHandler,
   errorHandler,
@@ -57,6 +58,11 @@ app.use("/api/hosts/listings", hostRoutes);
 
 // User profile API — AUTH-DEPENDENT (501 until Better Auth is integrated)
 app.use("/api/profile", profileRoutes);
+
+// Admin API — AUTH + ADMIN: verified Better Auth session (401) AND the
+// session email must be in the server-side ADMIN_EMAILS env list (403).
+// Covers every studio, including legacy/demo documents.
+app.use("/api/admin", adminRoutes);
 
 // Error handling
 app.use(notFoundHandler);

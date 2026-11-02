@@ -14,15 +14,10 @@
  * (existence of other users' listings is never disclosed).
  */
 
-import { ObjectId } from "mongodb";
 import { getStudiosCollection } from "../config/db.js";
 import { sendSuccess, sendError } from "../utils/apiResponse.js";
-import { isValidObjectId, validateStudioPayload, STUDIO_FIELDS } from "../utils/validation.js";
+import { buildIdQuery, isValidObjectId, validateStudioPayload, STUDIO_FIELDS } from "../utils/validation.js";
 import { buildOwnershipQuery, OWNERSHIP_FIELDS } from "../utils/ownership.js";
-
-function buildIdQuery(id) {
-  return { _id: { $in: [new ObjectId(id), id] } };
-}
 
 // GET /api/hosts/listings — all listings of the signed-in host
 export async function getMyListings(req, res, next) {

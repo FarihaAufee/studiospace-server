@@ -34,6 +34,11 @@ Validation failures also include an `errors` object keyed by field name.
 | 17 | DELETE | `/api/hosts/listings/:id` | **Auth** | Delete own listing |
 | 18 | GET | `/api/profile` | **Auth** | Current user profile |
 | 19 | PUT | `/api/profile` | **Auth** | Update profile (`name`) |
+| 20 | GET | `/api/admin/stats` | **Auth + Admin** | Dashboard totals (studios / users / bookings) |
+| 21 | GET | `/api/admin/studios` | **Auth + Admin** | All studios (+ filters) for the admin area |
+| 22 | GET | `/api/admin/studios/:id` | **Auth + Admin** | Any studio by id |
+| 23 | PUT | `/api/admin/studios/:id` | **Auth + Admin** | Update ANY studio (incl. legacy/demo) |
+| 24 | DELETE | `/api/admin/studios/:id` | **Auth + Admin** | Delete ANY studio (incl. legacy/demo) |
 
 All studio GETs stay public. Every auth-dependent endpoint (mutations on
 `/api/studios` and sections 9–19) is wrapped in `requireAuth` — see
@@ -355,6 +360,55 @@ by Better Auth's own endpoints.
 
 ---
 
+## Admin APIs — AUTH + ADMIN (`ADMIN_EMAILS`)
+
+Routes under `/api/admin` are wrapped with `requireAuth`
+(401 when there is no valid Better Auth session) followed by `requireAdmin`
+(middleware/adminMiddleware.js, 403 when the session email is not in the
+server-side `ADMIN_EMAILS` env list). No request body, query, or frontend
+state can grant admin access — only the env variable can.
+
+Env: `ADMIN_EMAILS="admin@example.com,other@example.com"` (comma-separated,
+case-insensitive; unset = no admins).
+
+### 20. GET /api/admin/stats — Dashboard totals
+
+Real MongoDB `countDocuments` totals streamed as:
+
+```json
+{ "totalStudios": 28, "totalUsers": 2, "totalBookings": 1 }
+```
+
+### 21. GET /api/admin/studios — All studios for the admin area
+
+Same handler as `GET /api/studios` (all filters supported), protected by the
+admin gate. Includes every studio: host-owned, demo, and legacy documents
+(no `hostId`, string `_id`).
+
+### 22. GET /api/admin/studios/:id — Any studio by id
+
+Resolves both real ObjectIds and legacy 24-char hex string `_id` values.
+
+### 23. PUT /api/admin/studios/:id — Update ANY studio
+
+Same field validation as the host update endpoints (`requireAll: false`) plus
+these two differences:
+
+- `hostName` / `hostEmail` are editable display/contact fields an admin may
+  correct;
+- `hostId` remains SERVER-MANAGED and is silently dropped — ownership
+  identity can never be transferred, even by an admin request.
+
+**200** → updated studio. **400** → validation failure (`errors` object) or
+empty body. **401/403/404** → see gates above.
+
+### 24. DELETE /api/admin/studios/:id — Delete ANY studio
+
+Deletes any studio including legacy/demo documents; **404** when the id
+matches nothing.
+
+---
+
 ## Authentication status
 
 Better Auth is intentionally **not implemented yet**. Every auth-dependent
@@ -425,6 +479,10 @@ MONGODB_USERS_COLLECTION=user
 # Future (added when Better Auth is integrated — do NOT invent now):
 # BETTER_AUTH_SECRET=...               # must match the frontend auth server
 # BETTER_AUTH_URL=http://localhost:3000
+
+# Admin authorization for /api/admin/* (comma-separated Better Auth emails).
+# Server-side only — never shipped to the client. Unset = no admins.
+ADMIN_EMAILS=admin@example.com
 ```
 
 `user`, `session`, `account`, `verification` collections are created by

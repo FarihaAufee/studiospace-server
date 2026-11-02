@@ -1,4 +1,6 @@
 
+import { ObjectId } from "mongodb";
+
 /**
  * Validation helpers for StudioSpace API.
  */
@@ -7,6 +9,16 @@ const OBJECT_ID_PATTERN = /^[0-9a-fA-F]{24}$/;
 
 export function isValidObjectId(value) {
   return typeof value === "string" && OBJECT_ID_PATTERN.test(value);
+}
+
+/**
+ * Builds a query that matches a studio _id whether it was stored as a real
+ * ObjectId (documents created through the API) or as a 24-char hex string
+ * (legacy/demo documents) �?" both forms satisfy the same hex pattern.
+ * Controllers use it so admin/edit flows work across mixed id types.
+ */
+export function buildIdQuery(id) {
+  return { _id: { $in: [new ObjectId(id), id] } };
 }
 
 export function escapeRegex(text) {
@@ -96,11 +108,13 @@ export function validateStudioPayload(
     }
   }
 
-  // Number validation
+  // Number validation. On create, securityDeposit is optional (the
+  // add-studio UI treats it as "Optional") and defaults are left to the
+  // document; hourlyRate and maxCapacity are still required.
   for (const field of NUMBER_FIELDS) {
     const provided = body[field] !== undefined;
 
-    if (requireAll && !provided) {
+    if (requireAll && field !== "securityDeposit" && !provided) {
       errors[field] = `${field} is required`;
       continue;
     }
