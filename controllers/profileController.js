@@ -1,15 +1,4 @@
-/**
- * User profile controller.
- *
- * AUTH-DEPENDENT: depends on `req.user` set by the authentication middleware
- * (implements the identity contract only — no session logic here). Until
- * Better Auth is integrated, all profile routes respond 501.
- *
- * The profile document is Better Auth's own `user` collection document — this
- * controller only reads it and updates the whitelisted display field (`name`).
- * Login credentials, emails and account security stay fully owned by Better
- * Auth's own endpoints; nothing is invented here.
- */
+
 
 import { getStudiosCollection, getBookingsCollection, getUserCollection } from "../config/db.js";
 import { sendSuccess, sendError } from "../utils/apiResponse.js";
