@@ -1,13 +1,4 @@
-/**
- * Category controller.
- *
- * Categories are NOT stored in their own collection (per project rules there
- * is a single Studio API — categories are just a `category` string on studio
- * documents). The known studio-space categories come from
- * utils/categories.js and live counts are computed from the studios
- * collection. Legacy per-category collections (e.g. "Film Studio") are left
- * untouched and are not surfaced here.
- */
+
 
 import { getStudiosCollection } from "../config/db.js";
 import { sendSuccess, sendError } from "../utils/apiResponse.js";
