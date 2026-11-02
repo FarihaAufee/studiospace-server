@@ -267,9 +267,9 @@ export async function cancelBooking(req, res, next) {
       return sendError(res, 404, "Booking not found");
     }
 
-    // if (booking.status === "cancelled") {
-    //   return sendError(res, 409, "Booking is already cancelled");
-    // }
+    if (booking.status === "cancelled") {
+      return sendError(res, 409, "Booking is already cancelled");
+    }
 
     if (booking.status === "completed") {
       return sendError(res, 409, "Completed bookings cannot be cancelled");
